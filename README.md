@@ -1,6 +1,24 @@
-# @novev9/react-native-instagram-stories
+<h1 align="center">@novev9/react-native-instagram-stories</h1>
 
-Instagram-style stories for React Native — **true 3D cube transition**, Fabric / New Architecture ready, headless content via render props, pluggable storage. Built for RN 0.85+ / Reanimated 4.
+<p align="center">
+  Instagram-style stories for React Native — <strong>true 3D cube transition</strong>,<br/>
+  Fabric / New Architecture ready, headless content via render props,<br/>
+  pluggable storage. Built for RN 0.85+ / Reanimated 4.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@novev9/react-native-instagram-stories"><img src="https://img.shields.io/npm/v/@novev9/react-native-instagram-stories.svg?style=flat-square" alt="npm version"/></a>
+  <a href="https://github.com/novev9/react-native-instagram-stories/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="MIT license"/></a>
+  <img src="https://img.shields.io/badge/RN-0.85%2B-61DAFB.svg?style=flat-square&logo=react" alt="RN 0.85+"/>
+  <img src="https://img.shields.io/badge/Reanimated-4-FF9C00.svg?style=flat-square" alt="Reanimated 4"/>
+  <img src="https://img.shields.io/badge/New_Architecture-ready-success.svg?style=flat-square" alt="New Architecture ready"/>
+</p>
+
+<p align="center">
+  <img src="./docs/demo-ios.gif" width="280" alt="iOS demo"/>
+  &nbsp;
+  <img src="./docs/demo-android.gif" width="280" alt="Android demo"/>
+</p>
 
 ## Features
 
@@ -11,6 +29,29 @@ Instagram-style stories for React Native — **true 3D cube transition**, Fabric
 - 👆 **Gestures** — pan to swipe, long-press to pause, swipe-down to dismiss, tap left/right to navigate slides
 - 💾 **Pluggable persistence** — `StorageAdapter` interface, ships with in-memory + optional AsyncStorage adapter
 - 📈 **Analytics callbacks** — `onShow`, `onViewSlide`, `onHide` (each payload carries `userId`, `slideId`, `slideIndex`)
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="./docs/screen-ios-1.png" width="240" alt="iOS — story open"/><br/>
+      <sub>iOS — story open</sub>
+    </td>
+    <td align="center">
+      <img src="./docs/screen-ios-2.png" width="240" alt="iOS — cube mid-swipe"/><br/>
+      <sub>iOS — cube mid-swipe</sub>
+    </td>
+    <td align="center">
+      <img src="./docs/screen-android-1.jpg" width="240" alt="Android — story open"/><br/>
+      <sub>Android — story open</sub>
+    </td>
+    <td align="center">
+      <img src="./docs/screen-android-2.jpg" width="240" alt="Android — cube mid-swipe"/><br/>
+      <sub>Android — cube mid-swipe</sub>
+    </td>
+  </tr>
+</table>
 
 ## Install
 
