@@ -87,7 +87,8 @@ export interface StoriesProps {
   /** Storage adapter for the seen-progress map. If omitted the
    *  built-in in-memory adapter is used — progress is then lost on
    *  unmount. Import an AsyncStorage adapter from
-   *  `rn-instagram-stories/async-storage` if you want real persistence. */
+   *  `@novev9/react-native-instagram-stories/async-storage` if you want
+   *  real persistence. */
   storage?: StorageAdapter;
   // ───────── Render props (escape hatches) ─────────
   /** Override the header rendered above the slide (title + close). */

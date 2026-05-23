@@ -1,9 +1,9 @@
 <h1 align="center">@novev9/react-native-instagram-stories</h1>
 
 <p align="center">
-  Instagram-style stories for React Native — <strong>true 3D cube transition</strong>,<br/>
-  Fabric / New Architecture ready, headless content via render props,<br/>
-  pluggable storage. Built for RN 0.85+ / Reanimated 4.
+  Modern Instagram-style stories for React Native with a <strong>true 3D cube swipe</strong>,<br/>
+  headless render-prop slides, light dependencies, Fabric-ready internals,<br/>
+  and optional pluggable storage. Built for RN 0.85+ / Reanimated 4.
 </p>
 
 <p align="center">

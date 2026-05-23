@@ -8,7 +8,7 @@ import type { StorageAdapter } from '../types';
  *
  * For real persistence install `@react-native-async-storage/async-storage`
  * and import `createAsyncStorageAdapter` from
- * `rn-instagram-stories/async-storage`.
+ * `@novev9/react-native-instagram-stories/async-storage`.
  */
 export function createMemoryStorage(): StorageAdapter {
   const store = new Map<string, string>();

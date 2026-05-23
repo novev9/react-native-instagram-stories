@@ -8,7 +8,7 @@ import type { StorageAdapter } from '../types';
  *
  * @example
  *   import AsyncStorage from '@react-native-async-storage/async-storage';
- *   import { createAsyncStorageAdapter } from 'rn-instagram-stories/async-storage';
+ *   import { createAsyncStorageAdapter } from '@novev9/react-native-instagram-stories/async-storage';
  *
  *   <Stories storage={createAsyncStorageAdapter(AsyncStorage)} ... />
  */

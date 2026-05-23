@@ -1,7 +1,7 @@
 {
   "name": "@novev9/react-native-instagram-stories",
-  "version": "1.0.0",
-  "description": "Instagram-style stories for React Native — true 3D cube transition, Fabric / New Architecture ready, headless content (render prop), pluggable storage.",
+  "version": "1.0.1",
+  "description": "Modern React Native stories with true 3D cube swipes, headless render-prop slides, light deps, Fabric / New Architecture ready, optional pluggable storage.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
@@ -23,17 +23,24 @@
   },
   "keywords": [
     "react-native",
-    "ios",
-    "android",
+    "react-native-stories",
     "stories",
+    "story",
     "instagram",
     "instagram-stories",
-    "story",
+    "story-viewer",
+    "story-carousel",
+    "reels",
     "cube",
     "3d",
+    "swipe",
+    "carousel",
+    "gesture-handler",
+    "reanimated",
     "fabric",
     "new-architecture",
-    "reanimated"
+    "ios",
+    "android"
   ],
   "repository": {
     "type": "git",
