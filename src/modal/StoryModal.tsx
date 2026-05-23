@@ -69,6 +69,10 @@ interface Props {
   onSlideChange: (userIndex: number, slideIndex: number) => void;
   /** Called when dismissed (swipe-down, end-of-last-user, modal close). */
   onClose: () => void;
+  /** Resolves the starting slide index when the carousel crosses into
+   *  a user (e.g. swipe-back from a later user). Without this the modal
+   *  would always restart at slide 0, dropping watch progress. */
+  pickInitialSlideForUser: (userId: string) => number;
   /** Optional consumer-provided header override. */
   renderHeader?: (state: StoryHeaderRenderState) => React.ReactNode;
   /** Optional consumer-provided close button override. */
@@ -99,6 +103,7 @@ function StoryModalContent(props: Props) {
     backgroundColor,
     onSlideChange,
     onClose,
+    pickInitialSlideForUser,
     renderHeader,
     renderCloseButton,
   } = props;
@@ -243,9 +248,15 @@ function StoryModalContent(props: Props) {
     (targetUserIndex: number) => {
       paused.value = false;
       skipTranslateSyncForIndexRef.current = targetUserIndex;
-      gotoUser(targetUserIndex, 0);
+      const targetUser = usersRef.current[targetUserIndex];
+      if (!targetUser) return;
+      // Pick the next-unseen slide (or restart if fully watched). This
+      // preserves progress when the carousel crosses back to a user the
+      // viewer has already partially watched in this session.
+      const startSlide = pickInitialSlideForUser(targetUser.id);
+      gotoUser(targetUserIndex, startSlide);
     },
-    [gotoUser, paused]
+    [gotoUser, paused, pickInitialSlideForUser]
   );
 
   const resume = useCallback(() => {

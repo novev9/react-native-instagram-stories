@@ -57,25 +57,42 @@ export const Stories = forwardRef<StoriesPublicMethods, StoriesProps>(
     const [activeUserIndex, setActiveUserIndex] = useState<number | null>(null);
     const [initialSlideIndex, setInitialSlideIndex] = useState(0);
 
+    /**
+     * Resolve which slide a user should open at, given the persisted
+     * seen-state. Returns:
+     *   - `lastSeenIdx + 1` if the user has partially watched (resume),
+     *   - `0` if the user has finished all slides (restart), or has
+     *     never been watched.
+     * Used by `openAt` for fresh `show()` calls AND by the modal
+     * itself when the carousel crosses a user boundary (swipe / tap)
+     * so progress is preserved everywhere — not just on initial open.
+     */
+    const pickInitialSlideForUser = useCallback(
+      (userId: string): number => {
+        const user = users.find(u => u.id === userId);
+        if (!user) return 0;
+        const lastSeenId = seen[userId];
+        if (!lastSeenId) return 0;
+        const lastIdx = user.stories.findIndex(s => s.id === lastSeenId);
+        if (lastIdx >= 0 && lastIdx < user.stories.length - 1) {
+          return lastIdx + 1;
+        }
+        return 0;
+      },
+      [users, seen]
+    );
+
     const openAt = useCallback(
       (userId: string, slideId?: string) => {
         const userIdx = users.findIndex(u => u.id === userId);
         if (userIdx < 0) return;
         const user = users[userIdx];
-        let startIndex = 0;
+        let startIndex: number;
         if (slideId) {
           const idx = user.stories.findIndex(s => s.id === slideId);
-          if (idx >= 0) startIndex = idx;
+          startIndex = idx >= 0 ? idx : 0;
         } else {
-          const lastSeenId = seen[userId];
-          if (lastSeenId) {
-            const lastIdx = user.stories.findIndex(
-              s => s.id === lastSeenId
-            );
-            if (lastIdx >= 0 && lastIdx < user.stories.length - 1) {
-              startIndex = lastIdx + 1;
-            }
-          }
+          startIndex = pickInitialSlideForUser(userId);
         }
         const slide = user.stories[startIndex];
         if (!slide) return;
@@ -90,7 +107,7 @@ export const Stories = forwardRef<StoriesPublicMethods, StoriesProps>(
         lastViewedRef.current = initialEvent;
         if (onShow) onShow(initialEvent);
       },
-      [users, seen, markSeen, onShow]
+      [users, pickInitialSlideForUser, markSeen, onShow]
     );
 
     const hide = useCallback(() => {
@@ -148,6 +165,7 @@ export const Stories = forwardRef<StoriesPublicMethods, StoriesProps>(
             backgroundColor={backgroundColor}
             onSlideChange={onSlideChange}
             onClose={hide}
+            pickInitialSlideForUser={pickInitialSlideForUser}
             renderHeader={renderHeader}
             renderCloseButton={renderCloseButton}
           />
