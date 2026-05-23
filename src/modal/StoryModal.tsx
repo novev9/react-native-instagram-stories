@@ -207,6 +207,19 @@ function StoryModalContent(props: Props) {
     activeUserIndexSV.value = state.activeUserIndex;
   }, [state.activeUserIndex, activeSlideIndex, activeUserIndexSV]);
 
+  const gotoUser = useCallback(
+    (targetUserIndex: number, targetSlideIndex: number) => {
+      paused.value = false;
+      dispatch({
+        type: 'gotoUser',
+        targetUserIndex,
+        targetSlideIndex,
+        users: usersRef.current,
+      });
+    },
+    [paused]
+  );
+
   const advanceForward = useCallback(() => {
     paused.value = false;
     const u = usersRef.current;
@@ -223,26 +236,25 @@ function StoryModalContent(props: Props) {
       requestClose();
       return;
     }
+    if (isLastSlide) {
+      // Crossing into the next user — resolve the start slide from the
+      // persisted seen-state (same logic as swipe / openAt). The reducer
+      // can't call this helper because it's a pure function.
+      const nextUser = u[userIdx + 1];
+      if (!nextUser) {
+        requestClose();
+        return;
+      }
+      gotoUser(userIdx + 1, pickInitialSlideForUser(nextUser.id));
+      return;
+    }
     dispatch({ type: 'advance', direction: 1, users: u });
-  }, [paused, requestClose]);
+  }, [paused, requestClose, gotoUser, pickInitialSlideForUser]);
 
   const advanceBackward = useCallback(() => {
     paused.value = false;
     dispatch({ type: 'advance', direction: -1, users: usersRef.current });
   }, [paused]);
-
-  const gotoUser = useCallback(
-    (targetUserIndex: number, targetSlideIndex: number) => {
-      paused.value = false;
-      dispatch({
-        type: 'gotoUser',
-        targetUserIndex,
-        targetSlideIndex,
-        users: usersRef.current,
-      });
-    },
-    [paused]
-  );
 
   const commitUserIndex = useCallback(
     (targetUserIndex: number) => {
