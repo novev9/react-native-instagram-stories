@@ -1,6 +1,6 @@
 {
   "name": "@novev9/react-native-instagram-stories",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Modern React Native stories with true 3D cube swipes, headless render-prop slides, light deps, Fabric / New Architecture ready, optional pluggable storage.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
