@@ -64,6 +64,12 @@ export interface StoriesProps {
   users: StoryUser[];
   /** Default duration per slide in ms. Default 5000. */
   animationDuration?: number;
+  /** Duration (ms) of the modal open/close slide animation. Default 220. */
+  modalAnimationDuration?: number;
+  /** Scale applied to the modal at full drag-dismiss / close.
+   *  `1` = pure slide, no scale (default). `<1` re-enables the
+   *  shrink-on-dismiss (e.g. `0.7` for the legacy look). */
+  dismissScale?: number;
   /** Avatar ring colours for unseen stories. 1 colour = solid ring,
    *  ≥2 = linear gradient (top-left → bottom-right). Default
    *  `['#FF5C5C']`. */

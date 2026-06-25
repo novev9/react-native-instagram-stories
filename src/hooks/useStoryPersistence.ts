@@ -45,9 +45,19 @@ export function useStoryPersistence({ enabled, storage }: Args) {
   }, [enabled, adapter]);
 
   const markSeen = useCallback(
-    (userId: string, slideId: string) => {
+    (userId: string, slideId: string, orderedSlideIds: string[]) => {
       setSeen(prev => {
         if (prev[userId] === slideId) return prev;
+        // Monotonic: only advance to a *further* slide, never regress.
+        // Keeps the seen-border sticky once the last slide is reached —
+        // re-opening a finished story and bailing on slide 1 must not
+        // flip it back to "unseen". `seen[userId]` therefore tracks the
+        // furthest slide ever reached, not the live position.
+        const prevIdx = prev[userId]
+          ? orderedSlideIds.indexOf(prev[userId])
+          : -1;
+        const nextIdx = orderedSlideIds.indexOf(slideId);
+        if (nextIdx <= prevIdx) return prev;
         const next = { ...prev, [userId]: slideId };
         if (enabled) {
           Promise.resolve(adapter.setItem(STORAGE_KEY, JSON.stringify(next)))

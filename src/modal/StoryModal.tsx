@@ -64,6 +64,8 @@ interface Props {
   initialUserIndex: number;
   initialSlideIndex: number;
   animationDuration: number;
+  modalAnimationDuration?: number;
+  dismissScale?: number;
   backgroundColor: string;
   /** Called whenever the active slide changes. */
   onSlideChange: (userIndex: number, slideIndex: number) => void;
@@ -100,6 +102,8 @@ function StoryModalContent(props: Props) {
     initialUserIndex,
     initialSlideIndex,
     animationDuration,
+    modalAnimationDuration,
+    dismissScale,
     backgroundColor,
     onSlideChange,
     onClose,
@@ -107,6 +111,11 @@ function StoryModalContent(props: Props) {
     renderHeader,
     renderCloseButton,
   } = props;
+
+  // Open/close slide tuning (configurable from the consumer; defaults
+  // keep the historical timing and a pure no-scale slide).
+  const modalDuration = modalAnimationDuration ?? APPEAR_DURATION;
+  const minScale = dismissScale ?? 1;
 
   const insets = useSafeAreaInsets();
   const safeTop = Math.max(
@@ -133,7 +142,7 @@ function StoryModalContent(props: Props) {
   // ─────────── Shared values ───────────
   const progress = useSharedValue(0);
   const translateX = useSharedValue(-initialUserIndex * SCREEN_WIDTH);
-  const translateY = useSharedValue(0);
+  const translateY = useSharedValue(SCREEN_HEIGHT);
   const startX = useSharedValue(0);
   const startY = useSharedValue(0);
   const pausedProgress = useSharedValue(0);
@@ -142,22 +151,24 @@ function StoryModalContent(props: Props) {
   const activeUserIndexSV = useSharedValue(initialUserIndex);
   const paused = useSharedValue(false);
 
-  // ─────────── Open / close animation ───────────
-  const appearProgress = useSharedValue(0);
+  // ─────────── Open / close animation (slide, no scale) ───────────
+  // Open slides up from the bottom; close slides straight back down.
+  // No scale by default → the modal always covers full width, so
+  // neighbouring stories never peek at the edges during the transition.
   useEffect(() => {
-    appearProgress.value = withTiming(1, { duration: APPEAR_DURATION });
-  }, [appearProgress]);
+    translateY.value = withTiming(0, { duration: modalDuration });
+  }, [translateY, modalDuration]);
 
   const requestClose = useCallback(() => {
-    appearProgress.value = withTiming(
-      0,
-      { duration: APPEAR_DURATION },
+    translateY.value = withTiming(
+      SCREEN_HEIGHT,
+      { duration: modalDuration },
       finished => {
         'worklet';
         if (finished) runOnJS(onClose)();
       }
     );
-  }, [appearProgress, onClose]);
+  }, [translateY, modalDuration, onClose]);
 
   // ─────────── Render-order driver ───────────
   // Android Fabric glitches if absolute-positioned siblings get
@@ -201,11 +212,18 @@ function StoryModalContent(props: Props) {
 
   const activeUserIndexRef = useRef(state.activeUserIndex);
   const activeSlideIndexRef = useRef(activeSlideIndex);
+  const slideIndexByUserRef = useRef(state.slideIndexByUser);
   useEffect(() => {
     activeUserIndexRef.current = state.activeUserIndex;
     activeSlideIndexRef.current = activeSlideIndex;
+    slideIndexByUserRef.current = state.slideIndexByUser;
     activeUserIndexSV.value = state.activeUserIndex;
-  }, [state.activeUserIndex, activeSlideIndex, activeUserIndexSV]);
+  }, [
+    state.activeUserIndex,
+    activeSlideIndex,
+    state.slideIndexByUser,
+    activeUserIndexSV,
+  ]);
 
   const gotoUser = useCallback(
     (targetUserIndex: number, targetSlideIndex: number) => {
@@ -262,10 +280,14 @@ function StoryModalContent(props: Props) {
       skipTranslateSyncForIndexRef.current = targetUserIndex;
       const targetUser = usersRef.current[targetUserIndex];
       if (!targetUser) return;
-      // Pick the next-unseen slide (or restart if fully watched). This
-      // preserves progress when the carousel crosses back to a user the
-      // viewer has already partially watched in this session.
-      const startSlide = pickInitialSlideForUser(targetUser.id);
+      // Land on the exact slide the cube preview was showing for this user:
+      // if visited in-session, keep their current slide; only a first-time
+      // cross falls back to the persisted resume slide. Without this the
+      // slide visibly jumps the moment the horizontal swipe settles
+      // (preview shows slide N, `pickInitial` resolved slide N+1).
+      const startSlide =
+        slideIndexByUserRef.current[targetUser.id] ??
+        pickInitialSlideForUser(targetUser.id);
       gotoUser(targetUserIndex, startSlide);
     },
     [gotoUser, paused, pickInitialSlideForUser]
@@ -517,23 +539,14 @@ function StoryModalContent(props: Props) {
 
   const backdropStyle = useAnimatedStyle(() => {
     const dragProgress = Math.min(translateY.value / DISMISS_DRAG_RANGE, 1);
-    const dragScale = interpolate(
+    const scale = interpolate(
       dragProgress,
       [0, 1],
-      [1, 0.7],
-      Extrapolation.CLAMP
-    );
-    const appearScale = interpolate(
-      appearProgress.value,
-      [0, 1],
-      [0.7, 1],
+      [1, minScale],
       Extrapolation.CLAMP
     );
     return {
-      transform: [
-        { translateY: translateY.value },
-        { scale: appearScale * dragScale },
-      ],
+      transform: [{ translateY: translateY.value }, { scale }],
     };
   });
 
@@ -561,7 +574,9 @@ function StoryModalContent(props: Props) {
         <GestureDetector gesture={composedGesture}>
           <Animated.View style={styles.fill}>
             {renderUsers.map(({ u: user, idx: userIdx }) => {
-              const sIdx = state.slideIndexByUser[user.id] ?? 0;
+              const sIdx =
+                state.slideIndexByUser[user.id] ??
+                pickInitialSlideForUser(user.id);
               const slide = user.stories[sIdx];
               const isNear =
                 Math.abs(userIdx - state.activeUserIndex) <= 1 ||

@@ -30,6 +30,8 @@ export const Stories = forwardRef<StoriesPublicMethods, StoriesProps>(
     const {
       users,
       animationDuration = DEFAULT_ANIMATION_DURATION,
+      modalAnimationDuration,
+      dismissScale,
       avatarBorderColors = DEFAULT_BORDER_COLORS,
       avatarSeenBorderColors = DEFAULT_SEEN_BORDER_COLORS,
       avatarSize = DEFAULT_AVATAR_SIZE,
@@ -98,7 +100,7 @@ export const Stories = forwardRef<StoriesPublicMethods, StoriesProps>(
         if (!slide) return;
         setInitialSlideIndex(startIndex);
         setActiveUserIndex(userIdx);
-        markSeen(userId, slide.id);
+        markSeen(userId, slide.id, user.stories.map(s => s.id));
         const initialEvent: StoryAnalyticsEvent = {
           userId,
           slideId: slide.id,
@@ -130,7 +132,7 @@ export const Stories = forwardRef<StoriesPublicMethods, StoriesProps>(
         if (!user) return;
         const slide = user.stories[slideIndex];
         if (!slide) return;
-        markSeen(user.id, slide.id);
+        markSeen(user.id, slide.id, user.stories.map(s => s.id));
         const event: StoryAnalyticsEvent = {
           userId: user.id,
           slideId: slide.id,
@@ -162,6 +164,8 @@ export const Stories = forwardRef<StoriesPublicMethods, StoriesProps>(
             initialUserIndex={activeUserIndex}
             initialSlideIndex={initialSlideIndex}
             animationDuration={animationDuration}
+            modalAnimationDuration={modalAnimationDuration}
+            dismissScale={dismissScale}
             backgroundColor={backgroundColor}
             onSlideChange={onSlideChange}
             onClose={hide}
